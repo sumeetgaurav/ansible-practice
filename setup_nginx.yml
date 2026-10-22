@@ -1,0 +1,26 @@
+---                                          # Start of YAML document
+- name: Install and Configure Nginx          # Play name (guessed, it's cut off in the image)
+  hosts: servers                             # Run on the [servers] group from hosts.ini
+  become: yes                                # Use sudo, required for installing packages and writing to /var/www
+
+  tasks:                                     # List of tasks to run, in order
+    - name: Install Nginx                    # Task 1 name
+      apt:                                   # apt module: manages packages on Debian/Ubuntu
+        name: nginx                          # Package to install
+        state: present                       # Install it if missing, otherwise do nothing
+
+    - name: Copy the Custom HTML File        # Task 2 name
+      copy:                                  # copy module: sends a file from the control node to the servers
+        src: index.html                      # Local file (on your Ansible machine, next to the playbook)
+        dest: /var/www/html                  # Destination folder on the servers (Nginx's web root)
+
+    - name: Restart Nginx                    # Task 3 name
+      service:                               # service module: manages system services
+        name: nginx                          # Service to manage
+        state: reloaded                      # Reload the config without a full stop and start
+
+    - name: Enable and start Nginx           # Task name
+      service:                               # service module
+        name: nginx                          # Service to manage
+        state: started                       # Start it now if it isn't running
+        enabled: yes                         # Also start it on every boot

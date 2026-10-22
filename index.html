@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ansible Explained</title>
+<style>
+  :root {
+    --bg: #0b1020;
+    --card: #131a33;
+    --card2: #1a2342;
+    --text: #e6e9f5;
+    --muted: #9aa3c7;
+    --accent: #ff4d5e;
+    --accent2: #6c8cff;
+    --green: #3ddc97;
+    --border: rgba(255,255,255,0.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.65;
+  }
+  a { color: inherit; text-decoration: none; }
+
+  /* NAV */
+  nav {
+    position: sticky; top: 0; z-index: 10;
+    background: rgba(11,16,32,0.85);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-inner {
+    max-width: 1100px; margin: 0 auto; padding: 14px 24px;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  }
+  .logo { font-weight: 800; letter-spacing: .5px; font-size: 1.15rem; }
+  .logo span { color: var(--accent); }
+  .nav-links { display: flex; gap: 22px; font-size: .92rem; color: var(--muted); flex-wrap: wrap; }
+  .nav-links a:hover { color: var(--text); }
+
+  /* HERO */
+  .hero {
+    text-align: center;
+    padding: 90px 24px 80px;
+    background:
+      radial-gradient(circle at 20% 20%, rgba(255,77,94,0.22), transparent 45%),
+      radial-gradient(circle at 80% 10%, rgba(108,140,255,0.25), transparent 45%);
+  }
+  .badge {
+    display: inline-block; padding: 6px 16px; border-radius: 999px;
+    background: rgba(255,77,94,0.12); color: var(--accent);
+    border: 1px solid rgba(255,77,94,0.35);
+    font-size: .82rem; font-weight: 600; letter-spacing: .6px; margin-bottom: 22px;
+  }
+  .hero h1 {
+    font-size: clamp(2.4rem, 6vw, 4.2rem); line-height: 1.1; font-weight: 800;
+    margin-bottom: 18px;
+  }
+  .grad {
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .hero p { max-width: 640px; margin: 0 auto 32px; color: var(--muted); font-size: 1.1rem; }
+  .btn {
+    display: inline-block; padding: 13px 28px; border-radius: 12px; font-weight: 700;
+    background: linear-gradient(90deg, var(--accent), #ff7a5e); color: #fff;
+    box-shadow: 0 10px 30px rgba(255,77,94,0.3); transition: transform .2s;
+  }
+  .btn:hover { transform: translateY(-3px); }
+
+  /* LAYOUT */
+  section { max-width: 1100px; margin: 0 auto; padding: 70px 24px 10px; }
+  .eyebrow { color: var(--accent2); font-weight: 700; font-size: .82rem; letter-spacing: 1.5px; text-transform: uppercase; }
+  h2 { font-size: 2rem; margin: 8px 0 14px; }
+  .lead { color: var(--muted); max-width: 720px; margin-bottom: 32px; }
+
+  .grid { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 18px; padding: 24px; transition: transform .2s, border-color .2s;
+  }
+  .card:hover { transform: translateY(-5px); border-color: rgba(108,140,255,0.5); }
+  .icon {
+    width: 46px; height: 46px; border-radius: 12px; display: grid; place-items: center;
+    font-size: 1.4rem; margin-bottom: 14px;
+    background: linear-gradient(135deg, rgba(255,77,94,0.25), rgba(108,140,255,0.25));
+  }
+  .card h3 { font-size: 1.1rem; margin-bottom: 6px; }
+  .card p { color: var(--muted); font-size: .95rem; }
+
+  /* FLOW */
+  .flow { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); position: relative; }
+  .step {
+    background: var(--card2); border: 1px solid var(--border); border-radius: 16px;
+    padding: 22px 18px; text-align: center; position: relative;
+  }
+  .step .num {
+    width: 34px; height: 34px; border-radius: 50%; margin: 0 auto 10px;
+    display: grid; place-items: center; font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+  }
+  .step h4 { margin-bottom: 4px; }
+  .step p { font-size: .88rem; color: var(--muted); }
+
+  /* CODE */
+  .code-wrap { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+  .code {
+    background: #070b18; border: 1px solid var(--border); border-radius: 14px; overflow: hidden;
+  }
+  .code-head {
+    display: flex; align-items: center; gap: 8px; padding: 10px 14px;
+    background: #0e1428; border-bottom: 1px solid var(--border);
+    font-size: .8rem; color: var(--muted);
+  }
+  .dot { width: 11px; height: 11px; border-radius: 50%; }
+  .d1 { background: #ff5f57; } .d2 { background: #febc2e; } .d3 { background: #28c840; }
+  .code-head span { margin-left: 8px; }
+  pre {
+    padding: 18px; overflow-x: auto; font-size: .88rem; line-height: 1.7;
+    font-family: "Cascadia Code", "Fira Code", Consolas, monospace; color: #d5dbf5;
+  }
+  .k { color: #7aa2ff; } .s { color: #3ddc97; } .c { color: #6b7499; font-style: italic; } .v { color: #ffb86b; }
+
+  /* TABLE */
+  table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 14px; overflow: hidden; }
+  th, td { text-align: left; padding: 14px 18px; border-bottom: 1px solid var(--border); font-size: .94rem; }
+  th { background: var(--card2); color: var(--accent2); font-size: .8rem; letter-spacing: 1px; text-transform: uppercase; }
+  td code { background: #070b18; padding: 3px 8px; border-radius: 6px; color: var(--green); font-size: .88rem; }
+  tr:last-child td { border-bottom: none; }
+
+  /* COMPARE */
+  .pill-row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .pill {
+    padding: 8px 16px; border-radius: 999px; background: var(--card);
+    border: 1px solid var(--border); font-size: .9rem;
+  }
+  .pill b { color: var(--green); }
+
+  footer {
+    text-align: center; color: var(--muted); font-size: .9rem;
+    padding: 70px 24px 50px;
+  }
+  @media (max-width: 640px) { .nav-links { display: none; } section { padding-top: 50px; } }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="logo" href="#top">An<span>sible</span></a>
+    <div class="nav-links">
+      <a href="#what">What is it</a>
+      <a href="#concepts">Concepts</a>
+      <a href="#how">How it works</a>
+      <a href="#examples">Examples</a>
+      <a href="#commands">Commands</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <span class="badge">AUTOMATION &bull; CONFIGURATION MANAGEMENT</span>
+  <h1>Automate your servers with <span class="grad">Ansible</span></h1>
+  <p>Write simple YAML files, and configure hundreds of machines at once. No agents to install, just SSH.</p>
+  <a class="btn" href="#what">Start Learning</a>
+</header>
+
+<section id="what">
+  <div class="eyebrow">The basics</div>
+  <h2>What is Ansible?</h2>
+  <p class="lead">
+    Ansible is an open-source automation tool for configuration management, application deployment and
+    infrastructure tasks. You describe the <b>desired state</b> of your servers in a playbook, and Ansible
+    makes it happen, safely and repeatedly.
+  </p>
+  <div class="grid">
+    <div class="card">
+      <div class="icon">🚫</div>
+      <h3>Agentless</h3>
+      <p>Nothing to install on target servers. Ansible connects over SSH and runs the work.</p>
+    </div>
+    <div class="card">
+      <div class="icon">📝</div>
+      <h3>Simple YAML</h3>
+      <p>Playbooks are human-readable, so even beginners can understand what they do.</p>
+    </div>
+    <div class="card">
+      <div class="icon">🔁</div>
+      <h3>Idempotent</h3>
+      <p>Run it once or ten times, and the result is the same. It only changes what needs changing.</p>
+    </div>
+    <div class="card">
+      <div class="icon">📈</div>
+      <h3>Scalable</h3>
+      <p>Manage 2 servers or 2,000 with the same playbook and a single command.</p>
+    </div>
+  </div>
+</section>
+
+<section id="concepts">
+  <div class="eyebrow">Building blocks</div>
+  <h2>Key Concepts</h2>
+  <p class="lead">Five terms cover most of what you'll use day to day.</p>
+  <table>
+    <tr><th>Term</th><th>Meaning</th><th>Example</th></tr>
+    <tr><td><b>Control node</b></td><td>The machine where Ansible is installed and run from.</td><td>Your Ubuntu EC2 instance</td></tr>
+    <tr><td><b>Managed nodes</b></td><td>The servers Ansible configures.</td><td>worker-node-1, worker-node-2</td></tr>
+    <tr><td><b>Inventory</b></td><td>A file listing managed nodes, grouped.</td><td><code>hosts.ini</code></td></tr>
+    <tr><td><b>Module</b></td><td>A small tool that does one job.</td><td><code>apt</code>, <code>copy</code>, <code>service</code>, <code>ping</code></td></tr>
+    <tr><td><b>Task</b></td><td>One call to a module with arguments.</td><td>Install the package <code>tree</code></td></tr>
+    <tr><td><b>Playbook</b></td><td>A YAML file with plays, which contain tasks.</td><td><code>install.yml</code></td></tr>
+  </table>
+</section>
+
+<section id="how">
+  <div class="eyebrow">Under the hood</div>
+  <h2>How It Works</h2>
+  <p class="lead">From your command to the finished change, in four steps.</p>
+  <div class="flow">
+    <div class="step"><div class="num">1</div><h4>Read inventory</h4><p>Finds which servers belong to the target group.</p></div>
+    <div class="step"><div class="num">2</div><h4>Connect via SSH</h4><p>Logs in using your key and the host key it trusts.</p></div>
+    <div class="step"><div class="num">3</div><h4>Run modules</h4><p>Copies small scripts over, runs them, then removes them.</p></div>
+    <div class="step"><div class="num">4</div><h4>Report results</h4><p>Shows <b>ok</b>, <b>changed</b> or <b>failed</b> for each host.</p></div>
+  </div>
+</section>
+
+<section id="examples">
+  <div class="eyebrow">See it in action</div>
+  <h2>Inventory &amp; Playbook</h2>
+  <p class="lead">A tiny inventory and a playbook that installs a few packages on every server.</p>
+  <div class="code-wrap">
+    <div class="code">
+      <div class="code-head"><i class="dot d1"></i><i class="dot d2"></i><i class="dot d3"></i><span>hosts.ini</span></div>
+<pre><span class="k">[servers]</span>
+worker-node-1 <span class="v">ansible_host</span>=<span class="s">44.252.108.50</span>
+worker-node-2 <span class="v">ansible_host</span>=<span class="s">34.219.231.41</span>
+
+<span class="k">[servers:vars]</span>
+<span class="v">ansible_user</span>=<span class="s">ubuntu</span>
+<span class="v">ansible_ssh_private_key_file</span>=<span class="s">~/.ssh/my-key.pem</span></pre>
+    </div>
+    <div class="code">
+      <div class="code-head"><i class="dot d1"></i><i class="dot d2"></i><i class="dot d3"></i><span>install.yml</span></div>
+<pre><span class="k">- name</span>: <span class="s">Install Packages</span>
+  <span class="k">hosts</span>: <span class="s">servers</span>
+  <span class="k">become</span>: <span class="s">yes</span>   <span class="c"># use sudo</span>
+
+  <span class="k">vars</span>:
+    <span class="k">packages</span>:
+      - <span class="s">tree</span>
+      - <span class="s">zip</span>
+      - <span class="s">jq</span>
+
+  <span class="k">tasks</span>:
+    - <span class="k">name</span>: <span class="s">Install packages</span>
+      <span class="k">apt</span>:
+        <span class="k">name</span>: <span class="s">"{{ packages }}"</span>
+        <span class="k">state</span>: <span class="s">present</span>
+        <span class="k">update_cache</span>: <span class="s">yes</span></pre>
+    </div>
+  </div>
+</section>
+
+<section id="commands">
+  <div class="eyebrow">Cheat sheet</div>
+  <h2>Commands You'll Use Daily</h2>
+  <p class="lead">Keep these handy while you practice.</p>
+  <table>
+    <tr><th>Command</th><th>What it does</th></tr>
+    <tr><td><code>ansible --version</code></td><td>Shows the version and which config file is in use</td></tr>
+    <tr><td><code>ansible -i hosts.ini servers -m ping</code></td><td>Tests SSH connectivity to every host in the group</td></tr>
+    <tr><td><code>ansible-inventory -i hosts.ini --list</code></td><td>Displays how Ansible reads your inventory</td></tr>
+    <tr><td><code>ansible-playbook -i hosts.ini install.yml</code></td><td>Runs a playbook</td></tr>
+    <tr><td><code>ansible-playbook install.yml --check</code></td><td>Dry run: shows what would change, changes nothing</td></tr>
+    <tr><td><code>ansible-vault encrypt secrets.yml</code></td><td>Encrypts a file holding passwords or keys</td></tr>
+    <tr><td><code>ansible-playbook -i hosts.ini play.yml -vvv</code></td><td>Verbose output for debugging</td></tr>
+  </table>
+</section>
+
+<section>
+  <div class="eyebrow">Good habits</div>
+  <h2>Best Practices</h2>
+  <p class="lead">Small choices that keep your automation clean and safe.</p>
+  <div class="pill-row">
+    <div class="pill"><b>✔</b> Name every task clearly</div>
+    <div class="pill"><b>✔</b> Use modules instead of raw shell commands</div>
+    <div class="pill"><b>✔</b> Encrypt secrets with Ansible Vault</div>
+    <div class="pill"><b>✔</b> Test with <code>--check</code> first</div>
+    <div class="pill"><b>✔</b> Keep playbooks in Git</div>
+    <div class="pill"><b>✔</b> Use 2-space indentation, never tabs</div>
+  </div>
+</section>
+
+<footer>
+  Made for learning Ansible &bull; Happy automating! 🚀
+</footer>
+
+</body>
+</html>

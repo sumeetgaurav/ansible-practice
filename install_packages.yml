@@ -1,0 +1,27 @@
+---                                              # Start of YAML document
+- name: Install Multiple Packages                # Play name (guessed, it's cut off in the image)
+  hosts: servers                                 # Run on the [servers] group from hosts.ini
+  become: yes                                    # Use sudo, required for installing packages
+
+  vars:                                          # Variables for this play
+    packages_to_install:                         # A variable holding a list of package names
+      - tree                                     # Shows directories as a tree
+      - zip                                      # Create .zip archives
+      - unzip                                    # Extract .zip archives
+      - jq                                       # Command-line JSON processor
+      - wget                                     # Download files from the web
+      - apache2                                  # Apache web server
+
+  tasks:                                         # List of tasks to run, in order
+    - name: Install Package                      # Task name (shown in output)
+      apt:                                       # apt module: manages packages on Debian/Ubuntu
+        name: "{{ item }}"                       # Install one package at a time; item is the current loop value
+        state: latest                           # Make sure it's installed (skip if already there)
+      loop: "{{ packages_to_install }}"          # Repeat this task once for each package in the list
+      when: ansible_facts["distribution"] == "Ubuntu"
+    
+    - name: Show installed packages              # Separate task for printing messages
+      debug:                                     # debug module prints text to the screen
+        msg: "Installed {{ item }}"              # Message printed for each package
+      loop: "{{ packages_to_install }}"          # Loop over the same package list
+      when: ansible_facts["distribution"] == "Ubuntu"

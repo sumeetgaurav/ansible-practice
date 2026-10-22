@@ -1,0 +1,44 @@
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for role/docker
+
+
+- name: update system                        # Task 1 name
+  apt:                                       # apt module: manages packages on Debian/Ubuntu
+    name: "*"                                # "*" means every installed package
+    state: latest                            # Upgrade them all to the newest version
+
+- name: Install Docker.io                    # Task 2 name
+  apt:                                       # apt module
+    name: docker.io                          # Docker package from the Ubuntu repositories
+    state: latest                            # Install it, and upgrade if a newer version exists
+
+- name: Add users to Docker group            # Task 3 name
+  user:                                      # user module: creates or modifies user accounts
+    name: "{{ item }}"                       # Current username from the loop
+    groups: docker                            # Sets the user's PRIMARY group to docker (see note below)
+    append: true                             # Keep existing groups instead of replacing them
+  loop: "{{ docker_users }}"                 # Repeat for every username in the docker_users list
+
+- name: Install Docker.io
+  apt:
+    name: docker.io
+    state: present
+  notify: Restart Docker                     # Triggers the handler only if this task changed something
+
+- name: Register Docker Version              # Task 1 name
+  command: docker --version                  # Run the command on each server
+  register: docker_version                   # Save the result
+
+- name: Show Docker Version                  # Task 2 name
+  debug:                                     # Print to the screen
+    msg: "{{ docker_version }}"       # Only the text output, e.g. "Docker version 24.0.7"
+
+- name: Show running containers              # Task 1 name
+  command: docker ps                         # List running containers
+  register: running_containers               # Save the result in a variable
+  changed_when: false                        # This only reads information, so never report "changed"
+
+- name: Print containers                     # Task 2 name
+  debug:                                     # Print to the screen
+    msg: "{{ running_containers }}"   # Output as a list of lines, easier to read

@@ -1,0 +1,7 @@
+---                                          # Start of YAML document
+- name: Install Docker on Ubuntu             # Play name (label shown in output)
+  hosts: servers                             # Run on the [servers] group from hosts.ini
+  become: yes                                # Use sudo for every task in the role
+
+  roles:                                     # List of roles to run on these hosts
+    - docker                                 # Runs the role in roles/docker/

@@ -1,0 +1,16 @@
+---                                    # Marks the start of a YAML document
+- name: Hello Dosto                    # Name of the play (a label shown in output when it runs)
+  hosts: servers                       # Run on the [servers] group from hosts.ini (worker-node-1, worker-node-2)
+  become: yes                          # Use sudo (privilege escalation) for all tasks in this play
+
+  vars:                                # Section where you define variables for this play
+    user_name: Sumeet                 # Variable called user_name with the value "Shubham"
+
+  tasks:                               # List of tasks to run on each host, in order
+    - name: Greet user                 # Name of the first task (label shown in output)
+      command: echo "Hello {{ user_name }}"   # Run the echo command; {{ user_name }} is replaced with "Shubham"
+      register: greeting               # Save the task's result (stdout, stderr, return code) in a variable called greeting
+
+    - name: Show greeting              # Name of the second task
+      debug:                           # The debug module prints information to the screen
+        msg: "{{ greeting.stdout }}"   # Print the text output of the echo command, i.e. "Hello Sumeet"

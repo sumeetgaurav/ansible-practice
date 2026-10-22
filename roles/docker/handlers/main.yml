@@ -1,0 +1,9 @@
+#SPDX-License-Identifier: MIT-0
+---
+# handlers file for role/docker
+
+- name: Restart Docker                       # Task name (label shown in output)
+  service:                                   # service module: manages system services
+    name: docker                             # The Docker service
+    state: restarted                         # Stop and start it again
+  become: yes                                # Run this task with sudo (needed to control system services)
